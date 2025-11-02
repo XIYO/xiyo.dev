@@ -3,7 +3,7 @@ import adapter from '@sveltejs/adapter-cloudflare';
 /** @type {import('@sveltejs/kit').Config} */
 export default {
 	compilerOptions: {
-		runes: true  // 모든 컴포넌트에서 runes 강제 활성화
+		runes: true // 모든 컴포넌트에서 runes 강제 활성화
 	},
 	kit: {
 		adapter: adapter({
@@ -20,14 +20,7 @@ export default {
 				// 다른 에러는 경고
 				console.warn(`${status} error on ${path}${referrer ? ` (referrer: ${referrer})` : ''}`);
 			},
-			entries: [
-				'/',
-				'/feed.xml',
-				'/rss.xml',
-				'/sitemap.xml',
-				'/glove',
-				'/nav'
-			] // entries 함수가 있는 라우트에서 동적으로 생성
+			entries: ['/', '/feed.xml', '/rss.xml', '/sitemap.xml', '/glove', '/nav'] // entries 함수가 있는 라우트에서 동적으로 생성
 		}
 	}
 };

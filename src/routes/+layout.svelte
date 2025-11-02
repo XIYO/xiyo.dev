@@ -169,7 +169,9 @@
             const abs = new URL(pathname, origin);
             const baseAbs = deLocalizeUrl(abs);
             bp = baseAbs.pathname || '/';
-        } catch {}
+        } catch {
+            // Ignore URL parsing errors
+        }
         if (!bp || bp === '/') return null;
         const segments = bp.split('/').filter(Boolean);
         const items = segments.map((seg, idx) => {

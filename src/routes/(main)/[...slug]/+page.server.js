@@ -19,7 +19,7 @@ export async function load({ url }) {
 			});
 		}
 
-		const categoryPromise = categoryInstance?.toSerialize();
+		const categoryPromise = categoryInstance?.toSerialize(10, 100); // Limit to 100 posts per category for performance
 
 		// 포스트가 있으면 메타데이터와 콘텐츠를 분리해서 가져오기
 		const postMetadataPromise = postInstance?.getMetadata();

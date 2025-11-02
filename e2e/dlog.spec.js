@@ -44,7 +44,7 @@ test.describe('Dlog Feature - E2E Tests', () => {
 			await page.goto('/');
 
 			const timeElements = page.locator('.dlog-list time');
-			if (await timeElements.count() > 0) {
+			if ((await timeElements.count()) > 0) {
 				const datetimeAttr = await timeElements.first().getAttribute('datetime');
 				expect(datetimeAttr).toBeTruthy();
 			}
@@ -133,7 +133,9 @@ test.describe('Dlog Feature - E2E Tests', () => {
 		test('should have hr separator after dlog section', async ({ page }) => {
 			await page.goto('/');
 
-			const dlogSection = page.locator('section.markdown', { has: page.locator('h2:has-text("최근 작업")') });
+			const dlogSection = page.locator('section.markdown', {
+				has: page.locator('h2:has-text("최근 작업")')
+			});
 			const hrInSection = dlogSection.locator('hr');
 
 			expect(await hrInSection.count()).toBeGreaterThanOrEqual(0);
@@ -143,7 +145,7 @@ test.describe('Dlog Feature - E2E Tests', () => {
 			await page.goto('/');
 
 			const dlogItems = page.locator('.dlog-list li');
-			if (await dlogItems.count() > 0) {
+			if ((await dlogItems.count()) > 0) {
 				const spans = dlogItems.first().locator('span');
 				const spanCount = await spans.count();
 				expect(spanCount).toBeGreaterThanOrEqual(0);

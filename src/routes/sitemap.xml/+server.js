@@ -1,9 +1,7 @@
-import { readdir, stat } from 'fs/promises';
-import { join } from 'path';
 import { locales, baseLocale } from '$lib/paraglide/runtime';
 import { localizeUrl, deLocalizeUrl } from '$lib/paraglide/runtime.js';
 import { dev } from '$app/environment';
-import Post from '$lib/post/Post.js';
+import Category from '$lib/post/Category.js';
 import { PUBLIC_SITE_URL } from '$env/static/public';
 
 /**
@@ -35,7 +33,7 @@ export async function GET() {
 export const prerender = true;
 
 /**
- * Generate all URLs for sitemap
+ * Generate all URLs for sitemap using Category system (optimized)
  */
 async function generateAllUrls() {
 	const urls = new Set();
@@ -59,27 +57,65 @@ async function generateAllUrls() {
 		}
 	}
 
-	// 각 언어별 URL 스캔
+	// 루트 카테고리에서 모든 포스트와 카테고리 가져오기 (성능 최적화)
+	const root = Category.getCategory('');
+	if (!root) return Array.from(urls);
+
+	const [allPosts, allCategories] = await Promise.all([
+		root.getAllPosts(),
+		Promise.resolve(root.allChildCategories)
+	]);
+
+	// 모든 포스트의 메타데이터를 병렬로 미리 로드 및 캐시 (성능 최적화)
+	const postsMetadata = await Promise.all(allPosts.map((post) => post.getMetadata()));
+	// 메타데이터를 Map으로 저장하여 빠른 접근
+	const metadataByPath = new Map(postsMetadata.map((meta) => [meta.absolutePath, meta]));
+
+	// 모든 카테고리의 최신 날짜를 병렬로 미리 로드 및 캐시 (성능 최적화)
+	const categoryDates = await Promise.all(
+		allCategories.map((category) => category.getLatestPostDate())
+	);
+	// 날짜를 Map으로 저장하여 빠른 접근
+	const dateByPath = new Map(
+		allCategories.map((cat, idx) => [cat.absolutePath, categoryDates[idx]])
+	);
+
+	// 각 언어별 URL 생성
 	for (const locale of locales) {
-		const localeUrls = await scanLocaleUrls(locale);
-		localeUrls.forEach((url) => urls.add(url));
-	}
+		// 포스트 URL 추가
+		for (const post of allPosts) {
+			const metadata = metadataByPath.get(post.absolutePath); // 캐시에서 직접 가져오기
+			if (!metadata) continue; // 안전성 체크
 
-	return Array.from(urls);
-}
+			const postPath = post.absolutePath;
+			const postUrl = locale === baseLocale ? postPath : `/${locale}${postPath}`;
 
-/**
- * Scan URLs for specific locale
- */
-async function scanLocaleUrls(locale) {
-	const urls = new Set();
-	const staticPath = join(process.cwd(), 'static', locale);
+			// 메타데이터에서 수정일 가져오기
+			const lastmod = getLastModifiedFromMetadata(metadata);
 
-	try {
-		await scanDirectory(staticPath, locale, '', urls);
-	} catch (error) {
-		if (import.meta.env.DEV) {
-			console.warn(`⚠️  ${locale} 디렉토리 스캔 실패:`, error.message);
+			urls.add({
+				url: postUrl,
+				priority: getPriority(postUrl),
+				changefreq: getChangeFreq(postUrl),
+				lastmod: lastmod
+			});
+		}
+
+		// 카테고리 URL 추가
+		for (const category of allCategories) {
+			const categoryPath = category.absolutePath;
+			const categoryUrl = locale === baseLocale ? categoryPath : `/${locale}${categoryPath}`;
+
+			// 카테고리의 최신 포스트 날짜 가져오기 (캐시에서 직접)
+			const latestDate = dateByPath.get(category.absolutePath);
+			if (!latestDate) continue; // 안전성 체크
+
+			urls.add({
+				url: categoryUrl,
+				priority: getPriority(categoryUrl),
+				changefreq: getChangeFreq(categoryUrl),
+				lastmod: latestDate.toISOString().split('T')[0]
+			});
 		}
 	}
 
@@ -87,54 +123,30 @@ async function scanLocaleUrls(locale) {
 }
 
 /**
- * Recursively scan directory
+ * Get last modified date from post metadata
+ * @param {any} metadata - Post metadata
+ * @returns {string} ISO date string
  */
-async function scanDirectory(dirPath, locale, relativePath, urls) {
-	try {
-		const entries = await readdir(dirPath);
-
-		for (const entry of entries) {
-			// assets, 숨김 파일 제외
-			if (entry.startsWith('.') || entry === 'assets') {
-				continue;
-			}
-
-			const fullPath = join(dirPath, entry);
-			const stats = await stat(fullPath);
-			const currentPath = relativePath ? `${relativePath}/${entry}` : `/${entry}`;
-
-			if (stats.isDirectory()) {
-				// 디렉토리는 카테고리 URL로 추가
-				const categoryUrl = locale === baseLocale ? currentPath : `/${locale}${currentPath}`;
-
-				urls.add({
-					url: categoryUrl,
-					priority: getPriority(categoryUrl),
-					changefreq: getChangeFreq(categoryUrl),
-					lastmod: stats.mtime.toISOString().split('T')[0]
-				});
-
-				// 하위 디렉토리 재귀 스캔
-				await scanDirectory(fullPath, locale, currentPath, urls);
-			} else if (entry.endsWith('.md')) {
-				// 마크다운 파일은 포스트 URL로 추가
-				const postPath = currentPath.replace(/\.md$/, '');
-				const postUrl = locale === baseLocale ? postPath : `/${locale}${postPath}`;
-
-				// 포스트 메타데이터에서 정확한 수정일 가져오기
-				const lastmod = await getPostLastModified(postUrl, stats);
-
-				urls.add({
-					url: postUrl,
-					priority: getPriority(postUrl),
-					changefreq: getChangeFreq(postUrl),
-					lastmod: lastmod
-				});
-			}
-		}
-	} catch (error) {
-		console.warn(`디렉토리 스캔 실패 ${dirPath}:`, error.message);
+function getLastModifiedFromMetadata(metadata) {
+	if (!metadata?.data) {
+		return new Date().toISOString().split('T')[0];
 	}
+
+	const data = metadata.data;
+
+	// 1순위: modifiedAt 필드
+	if (data.modifiedAt) {
+		return new Date(data.modifiedAt).toISOString().split('T')[0];
+	}
+
+	// 2순위: dates 배열의 마지막 날짜
+	if (data.dates && Array.isArray(data.dates) && data.dates.length > 0) {
+		const lastDate = data.dates[data.dates.length - 1];
+		return new Date(lastDate).toISOString().split('T')[0];
+	}
+
+	// 기본값: 현재 날짜
+	return new Date().toISOString().split('T')[0];
 }
 
 /**
@@ -179,45 +191,6 @@ function getChangeFreq(url) {
 }
 
 /**
- * Get accurate last modified date for a post
- * Priority: metadata.modifiedAt > metadata.dates.last > file mtime
- */
-async function getPostLastModified(postUrl, fileStats) {
-	try {
-		// 포스트 인스턴스 가져오기
-		const postInstance = Post.getPosts(postUrl);
-		if (!postInstance) {
-			return fileStats.mtime.toISOString().split('T')[0];
-		}
-
-		// 메타데이터 가져오기
-		const metadata = await postInstance.getMetadata();
-		if (!metadata?.data) {
-			return fileStats.mtime.toISOString().split('T')[0];
-		}
-
-		const data = metadata.data;
-
-		// 1순위: modifiedAt 필드
-		if (data.modifiedAt) {
-			return new Date(data.modifiedAt).toISOString().split('T')[0];
-		}
-
-		// 3순위: dates 배열의 마지막 날짜
-		if (data.dates && Array.isArray(data.dates) && data.dates.length > 0) {
-			const lastDate = data.dates[data.dates.length - 1];
-			return new Date(lastDate).toISOString().split('T')[0];
-		}
-
-		// 4순위: 파일 시스템 수정 시간
-		return fileStats.mtime.toISOString().split('T')[0];
-	} catch (error) {
-		console.warn(`포스트 메타데이터 로드 실패 ${postUrl}:`, error.message);
-		return fileStats.mtime.toISOString().split('T')[0];
-	}
-}
-
-/**
  * Generate sitemap XML
  */
 // legacy helpers removed: using paraglide localizeUrl/deLocalizeUrl instead
@@ -239,7 +212,12 @@ function buildAlternateLinks(url) {
 function generateSitemapXml(urls) {
 	const urlEntries = urls
 		.map(
-			/** @param {{ url: string, priority: number, changefreq: string, lastmod: string }} param0 */ ({ url, priority, changefreq, lastmod }) => `
+			/** @param {{ url: string, priority: number, changefreq: string, lastmod: string }} param0 */ ({
+				url,
+				priority,
+				changefreq,
+				lastmod
+			}) => `
   <url>
     <loc>${PUBLIC_SITE_URL}${url}</loc>
     <lastmod>${lastmod}</lastmod>

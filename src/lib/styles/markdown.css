@@ -110,14 +110,16 @@
 		@apply px-4 py-3 font-semibold uppercase tracking-wide text-xs;
 		background: color-mix(in srgb, var(--color-surface-900) 85%, transparent);
 		color: color-mix(in srgb, var(--color-surface-contrast-light) 92%, transparent);
-		border-bottom: 1px solid color-mix(in srgb, var(--color-surface-contrast-light) 18%, transparent);
+		border-bottom: 1px solid
+			color-mix(in srgb, var(--color-surface-contrast-light) 18%, transparent);
 	}
 
 	.markdown tbody td {
 		@apply px-4 py-3 align-top;
 		background: transparent;
 		color: color-mix(in srgb, var(--color-surface-contrast-light) 88%, transparent);
-		border-bottom: 1px solid color-mix(in srgb, var(--color-surface-contrast-light) 12%, transparent);
+		border-bottom: 1px solid
+			color-mix(in srgb, var(--color-surface-contrast-light) 12%, transparent);
 	}
 
 	.markdown tbody tr:last-child td {
@@ -250,7 +252,11 @@
 		}
 
 		.markdown strong {
-			color: color-mix(in srgb, var(--base-font-color-dark) 45%, var(--color-surface-contrast-light) 55%);
+			color: color-mix(
+				in srgb,
+				var(--base-font-color-dark) 45%,
+				var(--color-surface-contrast-light) 55%
+			);
 		}
 	}
 }

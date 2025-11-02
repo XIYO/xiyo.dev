@@ -5,12 +5,18 @@ import { PUBLIC_SITE_URL } from '$env/static/public';
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ url }) {
 	const root = Category.getCategory('');
-	const posts = await root?.getAllPosts();
+	const posts = await root?.getAllPosts(); // Metadata already loaded and sorted
+
+	// Extract first 50 posts - metadata already cached from getAllPosts()
+	// Using Promise.all for consistency, but getMetadata() should return immediately from cache
 	const recent = await Promise.all(
-		(posts ?? []).slice(0, 50).map(async (post) => ({
-			absolutePath: post.absolutePath,
-			data: (await post.getMetadata()).data
-		}))
+		(posts ?? []).slice(0, 50).map(async (post) => {
+			const metadata = await post.getMetadata(); // Returns cached metadata
+			return {
+				absolutePath: post.absolutePath,
+				data: metadata.data
+			};
+		})
 	);
 
 	const lang = url.pathname.startsWith('/en-us')
@@ -21,7 +27,9 @@ export async function load({ url }) {
 
 	const dlogPath = lang === 'ko' ? '/dlog' : `/${lang}/dlog`;
 	const dlogCategory = Category.getCategory(dlogPath);
-	const dlogPosts = await dlogCategory?.getAllPosts();
+	const dlogPosts = await dlogCategory?.getAllPosts(); // Metadata already loaded and sorted
+
+	// Load content for first 5 dlogs
 	const dlogs = await Promise.all(
 		(dlogPosts ?? []).slice(0, 5).map(async (post) => {
 			const both = await post.getBoth();

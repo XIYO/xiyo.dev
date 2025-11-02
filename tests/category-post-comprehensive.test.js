@@ -28,7 +28,9 @@ describe('Category System Comprehensive Tests', () => {
 
 		it('should handle non-existent categories gracefully', () => {
 			const nonExistent = Category.getCategory('/non/existent/path');
-			expect(nonExistent === null || nonExistent === undefined || nonExistent?.absolutePath).toBeTruthy();
+			expect(
+				nonExistent === null || nonExistent === undefined || nonExistent?.absolutePath
+			).toBeTruthy();
 		});
 	});
 

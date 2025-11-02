@@ -121,8 +121,8 @@ export default class Post {
 				});
 			} catch (error) {
 				if (import.meta.env.DEV) {
-				console.error(`Error processing markdown for ${this.#absolutePath}:`, error);
-			}
+					console.error(`Error processing markdown for ${this.#absolutePath}:`, error);
+				}
 				// Return a fallback processed markdown
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 				this.#processedMarkdownCache = Promise.resolve({

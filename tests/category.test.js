@@ -32,7 +32,7 @@ describe('Category and Post baseLocale fallback', () => {
 
 		// 카테고리 테스트: 각 locale의 posts 카테고리가 존재하는지 확인
 		/** @type {Record<string, any>} */
-	const categoryByLocale = {};
+		const categoryByLocale = {};
 		locales.forEach((locale) => {
 			const localeLower = locale.toLowerCase();
 			const category = Category.getCategory(`/${localeLower}/posts`);
@@ -71,7 +71,7 @@ describe('Category and Post baseLocale fallback', () => {
 
 		// 각 언어별로 about 파일이 존재하는지 확인
 		/** @type {Record<string, any>} */
-	const aboutPosts = {};
+		const aboutPosts = {};
 		locales.forEach((locale) => {
 			const localeLower = locale.toLowerCase();
 			const aboutPost = Post.getPosts(`/${localeLower}/about`);

@@ -99,6 +99,16 @@ export default class Category {
 	}
 
 	/**
+	 * 포스트 배열을 정렬 날짜 기준 내림차순으로 정렬 (최신순)
+	 * @param {import('./Post.js').default[]} posts - 정렬할 포스트 배열
+	 * @returns {import('./Post.js').default[]} 정렬된 포스트 배열
+	 * @private
+	 */
+	static #sortPostsByDate(posts) {
+		return posts.sort((a, b) => b.sortDate.getTime() - a.sortDate.getTime());
+	}
+
+	/**
 	 * 자신의 포스트 목록 반환 (최신순으로 정렬)
 	 * @returns {Promise<import('./Post.js').default[]>}
 	 */
@@ -109,9 +119,7 @@ export default class Category {
 		await Promise.all(posts.map((post) => post.getMetadata()));
 
 		// published 또는 dates[0] 기준으로 정렬
-		return posts.sort((a, b) => {
-			return b.sortDate.getTime() - a.sortDate.getTime();
-		});
+		return Category.#sortPostsByDate(posts);
 	}
 
 	/**
@@ -122,9 +130,9 @@ export default class Category {
 		const allPosts = await this.getAllPosts();
 		if (allPosts.length === 0) return new Date(0);
 
-		// 모든 포스트의 날짜 중 가장 최신 날짜 반환
-		const dates = allPosts.map((post) => post.sortDate);
-		return new Date(Math.max(...dates.map((d) => d.getTime())));
+		// 모든 포스트의 날짜 중 가장 최신 날짜 반환 (이미 정렬되어 있으므로 첫 번째 포스트 사용)
+		// 안전성: 배열이 비어있지 않음을 확인했으므로 안전
+		return allPosts[0].sortDate;
 	}
 
 	/**
@@ -135,21 +143,18 @@ export default class Category {
 		// 현재 카테고리의 포스트들
 		const currentPosts = [...this.#posts.values()];
 
-		// 모든 하위 카테고리의 포스트들을 재귀적으로 가져오기
-		const childPosts = [];
-		for (const childCategory of this.#childCategories.values()) {
-			const posts = await childCategory.getAllPosts();
-			childPosts.push(...posts);
-		}
+		// 모든 하위 카테고리의 포스트들을 병렬로 가져오기 (성능 최적화)
+		const childPostsArrays = await Promise.all(
+			[...this.#childCategories.values()].map((childCategory) => childCategory.getAllPosts())
+		);
+		const childPosts = childPostsArrays.flat();
 
 		const allPosts = [...currentPosts, ...childPosts];
 
 		// 메타데이터 로드 후 정렬
 		await Promise.all(allPosts.map((post) => post.getMetadata()));
 
-		return allPosts.sort((a, b) => {
-			return b.sortDate.getTime() - a.sortDate.getTime();
-		});
+		return Category.#sortPostsByDate(allPosts);
 	}
 
 	/**
@@ -219,9 +224,10 @@ export default class Category {
 	/**
 	 * 카테고리 직렬화 (성능 최적화)
 	 * @param {number} [maxDepth] - 최대 직렬화 깊이 (무한 순환 방지)
+	 * @param {number} [maxPosts] - 최대 포스트 개수 (성능 최적화), undefined면 모든 포스트
 	 * @returns {Promise<SerializedCategory>}
 	 */
-	async toSerialize(maxDepth = 10) {
+	async toSerialize(maxDepth = 10, maxPosts = undefined) {
 		if (maxDepth <= 0) {
 			// 깊이 제한 달성 시 기본 데이터만 반환
 			return {
@@ -240,12 +246,15 @@ export default class Category {
 			this.getChildCategories()
 		]);
 
-		// 포스트 메타데이터 추출 (이미 로드됨)
-		const posts = await Promise.all(allPosts.map((post) => post.getMetadata()));
+		// 포스트 개수 제한 적용 (성능 최적화)
+		const postsToSerialize = maxPosts ? allPosts.slice(0, maxPosts) : allPosts;
 
-		// 자식 카테고리 직렬화
+		// 포스트 메타데이터 추출 (이미 로드됨)
+		const posts = await Promise.all(postsToSerialize.map((post) => post.getMetadata()));
+
+		// 자식 카테고리 직렬화 (동일한 maxPosts 제한 전달)
 		const childCategories = await Promise.all(
-			sortedChildCategories.map((category) => category.toSerialize(maxDepth - 1))
+			sortedChildCategories.map((category) => category.toSerialize(maxDepth - 1, maxPosts))
 		);
 
 		// 메모리 효율적 방식으로 필터링

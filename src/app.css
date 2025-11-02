@@ -14,13 +14,13 @@
 }
 
 @layer base {
-    html {
-        @apply overscroll-none;
-    }
+	html {
+		@apply overscroll-none;
+	}
 
-    body > div:first-child {
-        @apply contents;
-    }
+	body > div:first-child {
+		@apply contents;
+	}
 }
 
 @theme {
