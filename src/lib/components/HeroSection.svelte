@@ -4,16 +4,16 @@
 </script>
 
 <section class="markdown">
-<p>{m.introduction()}</p>
+	<p>{m.introduction()}</p>
 
-<figure>
-	<enhanced:img
-		src={terminalBrowsing}
-		alt={m.terminalBrowsing()}
-		data-title={m.terminal()}
-		loading="lazy"
-		decoding="async"
-	/>
-	<figcaption>{m.terminalCaption()}</figcaption>
-</figure>
+	<figure>
+		<enhanced:img
+			src={terminalBrowsing}
+			alt={m.terminalBrowsing()}
+			data-title={m.terminal()}
+			loading="lazy"
+			decoding="async"
+		/>
+		<figcaption>{m.terminalCaption()}</figcaption>
+	</figure>
 </section>

@@ -16,7 +16,10 @@
 				</span>
 			{/if}
 			<time datetime={dlog.data.createdAt}>
-				{new Date(dlog.data.createdAt).toLocaleDateString(lang === 'en-us' ? 'en-US' : lang === 'ja-jp' ? 'ja-JP' : 'ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+				{new Date(dlog.data.createdAt).toLocaleDateString(
+					lang === 'en-us' ? 'en-US' : lang === 'ja-jp' ? 'ja-JP' : 'ko-KR',
+					{ year: 'numeric', month: 'long', day: 'numeric' }
+				)}
 			</time>
 		</div>
 	</div>

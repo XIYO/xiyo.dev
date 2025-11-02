@@ -135,12 +135,11 @@ export default class Category {
 		// 현재 카테고리의 포스트들
 		const currentPosts = [...this.#posts.values()];
 
-		// 모든 하위 카테고리의 포스트들을 재귀적으로 가져오기
-		const childPosts = [];
-		for (const childCategory of this.#childCategories.values()) {
-			const posts = await childCategory.getAllPosts();
-			childPosts.push(...posts);
-		}
+		// 모든 하위 카테고리의 포스트들을 병렬로 가져오기 (성능 최적화)
+		const childPostsArrays = await Promise.all(
+			[...this.#childCategories.values()].map((childCategory) => childCategory.getAllPosts())
+		);
+		const childPosts = childPostsArrays.flat();
 
 		const allPosts = [...currentPosts, ...childPosts];
 

@@ -6,6 +6,6 @@
 
 <main>
 	<HeroSection />
-    <hr class="hr">
+	<hr class="hr" />
 	<DlogList dlogs={page.data.dlogs} lang={page.data.lang} />
 </main>
