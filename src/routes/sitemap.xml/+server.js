@@ -66,17 +66,27 @@ async function generateAllUrls() {
 		Promise.resolve(root.allChildCategories)
 	]);
 
-	// 모든 포스트의 메타데이터를 병렬로 미리 로드 (성능 최적화)
-	await Promise.all(allPosts.map((post) => post.getMetadata()));
+	// 모든 포스트의 메타데이터를 병렬로 미리 로드 및 캐시 (성능 최적화)
+	const postsMetadata = await Promise.all(allPosts.map((post) => post.getMetadata()));
+	// 메타데이터를 Map으로 저장하여 빠른 접근
+	const metadataByPath = new Map(postsMetadata.map((meta) => [meta.absolutePath, meta]));
 
-	// 모든 카테고리의 최신 날짜를 병렬로 미리 로드 (성능 최적화)
-	await Promise.all(allCategories.map((category) => category.getLatestPostDate()));
+	// 모든 카테고리의 최신 날짜를 병렬로 미리 로드 및 캐시 (성능 최적화)
+	const categoryDates = await Promise.all(
+		allCategories.map((category) => category.getLatestPostDate())
+	);
+	// 날짜를 Map으로 저장하여 빠른 접근
+	const dateByPath = new Map(
+		allCategories.map((cat, idx) => [cat.absolutePath, categoryDates[idx]])
+	);
 
 	// 각 언어별 URL 생성
 	for (const locale of locales) {
 		// 포스트 URL 추가
 		for (const post of allPosts) {
-			const metadata = await post.getMetadata(); // 이미 캐시됨
+			const metadata = metadataByPath.get(post.absolutePath); // 캐시에서 직접 가져오기
+			if (!metadata) continue; // 안전성 체크
+
 			const postPath = post.absolutePath;
 			const postUrl = locale === baseLocale ? postPath : `/${locale}${postPath}`;
 
@@ -96,8 +106,9 @@ async function generateAllUrls() {
 			const categoryPath = category.absolutePath;
 			const categoryUrl = locale === baseLocale ? categoryPath : `/${locale}${categoryPath}`;
 
-			// 카테고리의 최신 포스트 날짜 가져오기 (이미 캐시됨)
-			const latestDate = await category.getLatestPostDate();
+			// 카테고리의 최신 포스트 날짜 가져오기 (캐시에서 직접)
+			const latestDate = dateByPath.get(category.absolutePath);
+			if (!latestDate) continue; // 안전성 체크
 
 			urls.add({
 				url: categoryUrl,

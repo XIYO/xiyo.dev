@@ -131,6 +131,7 @@ export default class Category {
 		if (allPosts.length === 0) return new Date(0);
 
 		// 모든 포스트의 날짜 중 가장 최신 날짜 반환 (이미 정렬되어 있으므로 첫 번째 포스트 사용)
+		// 안전성: 배열이 비어있지 않음을 확인했으므로 안전
 		return allPosts[0].sortDate;
 	}
 
