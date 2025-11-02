@@ -1,5 +1,4 @@
 import Category from '$lib/post/Category.js';
-import { baseLocale } from '$lib/paraglide/runtime.js';
 import { PUBLIC_SITE_URL } from '$env/static/public';
 
 /**
