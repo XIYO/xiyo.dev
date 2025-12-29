@@ -70,8 +70,10 @@ async function generateAllUrls() {
 
 /**
  * Scan URLs for specific locale
+ * @param {string} locale
  */
 async function scanLocaleUrls(locale) {
+	/** @type {Set<{url: string, priority: number, changefreq: string, lastmod: string}>} */
 	const urls = new Set();
 	const staticPath = join(process.cwd(), 'static', locale);
 
@@ -79,7 +81,7 @@ async function scanLocaleUrls(locale) {
 		await scanDirectory(staticPath, locale, '', urls);
 	} catch (error) {
 		if (import.meta.env.DEV) {
-			console.warn(`⚠️  ${locale} 디렉토리 스캔 실패:`, error.message);
+			console.warn(`${locale} 디렉토리 스캔 실패:`, error instanceof Error ? error.message : error);
 		}
 	}
 
@@ -88,6 +90,10 @@ async function scanLocaleUrls(locale) {
 
 /**
  * Recursively scan directory
+ * @param {string} dirPath
+ * @param {string} locale
+ * @param {string} relativePath
+ * @param {Set<{url: string, priority: number, changefreq: string, lastmod: string}>} urls
  */
 async function scanDirectory(dirPath, locale, relativePath, urls) {
 	try {
@@ -133,12 +139,13 @@ async function scanDirectory(dirPath, locale, relativePath, urls) {
 			}
 		}
 	} catch (error) {
-		console.warn(`디렉토리 스캔 실패 ${dirPath}:`, error.message);
+		console.warn(`디렉토리 스캔 실패 ${dirPath}:`, error instanceof Error ? error.message : error);
 	}
 }
 
 /**
  * Get URL priority
+ * @param {string} url
  */
 function getPriority(url) {
 	// 홈페이지 = 최고 우선순위
@@ -162,6 +169,7 @@ function getPriority(url) {
 
 /**
  * Get change frequency
+ * @param {string} url
  */
 function getChangeFreq(url) {
 	// 홈페이지 = 매일
@@ -181,6 +189,8 @@ function getChangeFreq(url) {
 /**
  * Get accurate last modified date for a post
  * Priority: metadata.modifiedAt > metadata.dates.last > file mtime
+ * @param {string} postUrl
+ * @param {import('fs').Stats} fileStats
  */
 async function getPostLastModified(postUrl, fileStats) {
 	try {
@@ -212,7 +222,7 @@ async function getPostLastModified(postUrl, fileStats) {
 		// 4순위: 파일 시스템 수정 시간
 		return fileStats.mtime.toISOString().split('T')[0];
 	} catch (error) {
-		console.warn(`포스트 메타데이터 로드 실패 ${postUrl}:`, error.message);
+		console.warn(`포스트 메타데이터 로드 실패 ${postUrl}:`, error instanceof Error ? error.message : error);
 		return fileStats.mtime.toISOString().split('T')[0];
 	}
 }
@@ -222,6 +232,9 @@ async function getPostLastModified(postUrl, fileStats) {
  */
 // legacy helpers removed: using paraglide localizeUrl/deLocalizeUrl instead
 
+/**
+ * @param {string} url
+ */
 function buildAlternateLinks(url) {
 	const abs = new URL(PUBLIC_SITE_URL + url);
 	const baseAbs = deLocalizeUrl(abs);
@@ -236,6 +249,9 @@ function buildAlternateLinks(url) {
 	return links + xDefault;
 }
 
+/**
+ * @param {{url: string, priority: number, changefreq: string, lastmod: string}[]} urls
+ */
 function generateSitemapXml(urls) {
 	const urlEntries = urls
 		.map(

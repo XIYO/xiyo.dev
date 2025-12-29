@@ -13,10 +13,7 @@ export async function load({ url }) {
 
 		// 포스트도 카테고리도 없으면 404
 		if (!categoryInstance && !postInstance) {
-			throw error(404, {
-				message: 'Page not found',
-				path: url.pathname
-			});
+			throw error(404, `Page not found: ${url.pathname}`);
 		}
 
 		const categoryPromise = categoryInstance?.toSerialize();

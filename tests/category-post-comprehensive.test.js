@@ -7,13 +7,13 @@ describe('Category System Comprehensive Tests', () => {
 		it('should initialize root category', () => {
 			const root = Category.getCategory('');
 			expect(root).toBeDefined();
-			expect(root.absolutePath).toBeDefined();
+			expect(root?.absolutePath).toBeDefined();
 		});
 
 		it('should initialize posts category', () => {
 			const postsCategory = Category.getCategory('/posts');
 			expect(postsCategory).toBeDefined();
-			expect(postsCategory.absolutePath).toMatch(/posts/);
+			expect(postsCategory?.absolutePath).toMatch(/posts/);
 		});
 
 		it('should initialize dlog category for all languages', () => {
@@ -51,7 +51,7 @@ describe('Category System Comprehensive Tests', () => {
 			const allPosts = await root?.getAllPosts();
 
 			expect(Array.isArray(allPosts)).toBe(true);
-			expect(allPosts.length).toBeGreaterThan(0);
+			expect(allPosts?.length).toBeGreaterThan(0);
 		});
 
 		it('should retrieve parent category correctly', () => {
@@ -288,6 +288,7 @@ describe('Category System Comprehensive Tests', () => {
 	describe('Multi-language Support', () => {
 		it('should retrieve content for all languages', async () => {
 			const languages = ['', '/en-us', '/ja-jp'];
+			/** @type {Record<string, number>} */
 			const results = {};
 
 			for (const lang of languages) {

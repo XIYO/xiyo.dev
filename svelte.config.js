@@ -26,6 +26,8 @@ export default {
 				'/rss.xml',
 				'/sitemap.xml',
 				'/glove',
+				'/games',
+				'/games/tic-tac-toe',
 				'/nav'
 			] // entries 함수가 있는 라우트에서 동적으로 생성
 		}

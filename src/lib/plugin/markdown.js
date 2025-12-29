@@ -12,7 +12,8 @@ import rehypeMermaid from 'rehype-mermaid';
 
 // 프리렌더 때만 무거운 플러그인을 로드한다.
 // 프리렌더가 아니면 가벼운 noop 플러그인을 제공해 .use(...) 체인이 깨지지 않게 한다.
-const __noop = () => (/** @param {any} tree */ tree) => tree;
+/** @returns {(tree: any) => any} */
+const __noop = () => (tree) => tree;
 
 // Top-level await 가능: Vite/SvelteKit ESM, Cloudflare Workers 모두 지원
 const rehypeShiki = (await import('@shikijs/rehype')).default;
@@ -20,7 +21,7 @@ import { visit } from 'unist-util-visit';
 import { load as yamlLoad } from 'js-yaml';
 
 // 성능 최적화: unified 프로세서 캐싱
-/** @type {import('unified').Processor | null} */
+/** @type {import('unified').Processor<any, any, any, any, any> | null} */
 let cachedProcessor = null;
 
 /**
@@ -46,12 +47,12 @@ function remarkStaticImagePath() {
 
 /**
  * unified 프로세서를 캐시하여 반환합니다.
- * @returns {import('unified').Processor}
+ * @returns {import('unified').Processor<any, any, any, any, any>}
  */
 function getProcessor() {
 	// rehype-mermaid 순서 변경으로 인한 캐시 무효화
 	if (!cachedProcessor) {
-		cachedProcessor = unified()
+		cachedProcessor = /** @type {import('unified').Processor<any, any, any, any, any>} */ (unified()
 			// remark 단계: 마크다운 파싱
 			.use(remarkParse, { allowDangerousHtml: true })
 			.use(remarkFrontmatter, ['yaml']) // YAML frontmatter 파싱
@@ -89,9 +90,9 @@ function getProcessor() {
 			})
 
 			// stringify 단계: 최종 HTML 생성
-			.use(rehypeStringify, { allowDangerousHtml: true });
+			.use(rehypeStringify, { allowDangerousHtml: true }));
 	}
-	return /** @type {import('unified').Processor} */ (cachedProcessor);
+	return cachedProcessor;
 }
 
 /**

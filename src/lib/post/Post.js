@@ -67,8 +67,9 @@ export default class Post {
 			return new Date(this.#metadata.data.createdAt);
 		}
 		// dates 배열의 첫 번째 값을 createdAt로 사용
-		if (this.#metadata?.data?.dates?.length > 0 && this.#metadata.data.dates[0]) {
-			return new Date(this.#metadata.data.dates[0]);
+		const dates = this.#metadata?.data?.dates;
+		if (dates && dates.length > 0 && dates[0]) {
+			return new Date(dates[0]);
 		}
 		// 날짜가 없으면 기본값
 		return new Date(0);

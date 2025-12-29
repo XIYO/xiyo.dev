@@ -219,9 +219,6 @@
 	{#if page.data.meta?.keywords}
 		<meta name="keywords" content={page.data.meta.keywords} />
 	{/if}
-	<!-- Cache control for better Naver crawling -->
-	<meta http-equiv="cache-control" content="public, max-age=3600" />
-	<meta http-equiv="expires" content="3600" />
 	<meta property="og:title" content={page.data.meta?.title || effectiveTitle} />
 	<meta property="og:description" content={page.data.meta?.description || effectiveDescription} />
 	<meta property="og:type" content={page.data.meta?.type || (isArticle ? 'article' : 'website')} />

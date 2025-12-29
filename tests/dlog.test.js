@@ -21,9 +21,9 @@ describe('Dlog data loading and serialization', () => {
 
 		expect(dlogs).toBeDefined();
 		expect(Array.isArray(dlogs)).toBe(true);
-		expect(dlogs.length).toBeGreaterThan(0);
+		expect(dlogs?.length).toBeGreaterThan(0);
 
-		const dlog = dlogs[0];
+		const dlog = dlogs?.[0];
 		expect(dlog).toHaveProperty('absolutePath');
 		expect(dlog).toHaveProperty('getBoth');
 	});
@@ -82,7 +82,7 @@ describe('Dlog data loading and serialization', () => {
 
 		const metadata = await dlog?.getMetadata();
 		expect(metadata?.data).toHaveProperty('createdAt');
-		expect(metadata.data.createdAt).toBeTruthy();
+		expect(metadata?.data.createdAt).toBeTruthy();
 	});
 
 	it('should process dlog content as markdown', async () => {
@@ -95,6 +95,6 @@ describe('Dlog data loading and serialization', () => {
 		const both = await dlog?.getBoth();
 		expect(both?.value).toBeTruthy();
 		expect(typeof both?.value).toBe('string');
-		expect(both?.value.includes('<p>') || both?.value.length > 0).toBe(true);
+		expect(both?.value?.includes('<p>') || (both?.value?.length ?? 0) > 0).toBe(true);
 	});
 });

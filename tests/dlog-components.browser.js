@@ -1,6 +1,6 @@
 /// <reference types="vitest/globals" />
 import { describe, it, expect } from 'vitest';
-import { mount } from 'svelte';
+import { mount, unmount } from 'svelte';
 import DlogItem from '../src/lib/components/dlog/DlogItem.svelte';
 import DlogList from '../src/lib/components/dlog/DlogList.svelte';
 
@@ -31,7 +31,7 @@ describe.skip('Dlog Components - Browser Mode', () => {
 			expect(component).toBeDefined();
 			expect(target.innerHTML).toContain('테스트 콘텐츠입니다');
 
-			component.$destroy();
+			unmount(component);
 			target.remove();
 		});
 
@@ -60,7 +60,7 @@ describe.skip('Dlog Components - Browser Mode', () => {
 			expect(target.innerHTML).toContain('#test');
 			expect(target.innerHTML).toContain('#dlog');
 
-			component.$destroy();
+			unmount(component);
 			target.remove();
 		});
 
@@ -89,7 +89,7 @@ describe.skip('Dlog Components - Browser Mode', () => {
 			const dateText = target.textContent;
 			expect(dateText).toContain('2025');
 
-			component.$destroy();
+			unmount(component);
 			target.remove();
 		});
 	});
@@ -129,7 +129,7 @@ describe.skip('Dlog Components - Browser Mode', () => {
 			expect(component).toBeDefined();
 			expect(target.innerHTML).toContain('최근 생각들');
 
-			component.$destroy();
+			unmount(component);
 			target.remove();
 		});
 
@@ -147,7 +147,7 @@ describe.skip('Dlog Components - Browser Mode', () => {
 
 			expect(target.innerHTML).not.toContain('최근 생각들');
 
-			component.$destroy();
+			unmount(component);
 			target.remove();
 		});
 	});

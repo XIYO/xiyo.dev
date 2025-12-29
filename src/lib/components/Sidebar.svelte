@@ -1,16 +1,17 @@
-<script>
+<script lang="ts">
 	import Home from '@lucide/svelte/icons/home';
 	import FileText from '@lucide/svelte/icons/file-text';
 	import Info from '@lucide/svelte/icons/info';
 	import HandFist from '@lucide/svelte/icons/hand-fist';
+	import Gamepad2 from '@lucide/svelte/icons/gamepad-2';
 	import { page } from '$app/state';
 	import { afterNavigate } from '$app/navigation';
 	import { innerWidth } from 'svelte/reactivity/window';
 	import { deLocalizeHref } from '$lib/paraglide/runtime.js';
-	import { localizeHref, locales, setLocale } from '$lib/paraglide/runtime.js';
+	import { localizeHref, locales, setLocale, type Locale } from '$lib/paraglide/runtime.js';
+	import type { Component } from 'svelte';
 
-	/** @type {HTMLElement | null} */
-	let sidebarElement = $state(null);
+	let sidebarElement = $state<HTMLElement | null>(null);
 
 	// Tailwind 'sm' = 640px. 모바일(<640px)에서만 자동 닫기
 	// svelte/reactivity/window: innerWidth.current is undefined on server
@@ -25,48 +26,36 @@
 		{ label: 'Home', icon: Home, path: '/' },
 		{ label: 'Posts', icon: FileText, path: '/posts' },
 		{ label: 'About', icon: Info, path: '/about' },
-		{ label: 'Glove', icon: HandFist, path: '/glove' }
+		{ label: 'Glove', icon: HandFist, path: '/glove' },
+		{ label: 'Games', icon: Gamepad2, path: '/games' }
 	];
 
-	const localeEmojis = {
+	const localeEmojis: Record<string, string> = {
 		'ko-kr': '🇰🇷',
 		'en-us': '🇺🇸',
 		'ja-jp': '🇯🇵'
 	};
 
-	/**
-	 * @param {Event} event
-	 * @param {string} locale
-	 */
-	async function handleLocaleClick(event, locale) {
+	async function handleLocaleClick(event: Event, locale: string) {
 		event.preventDefault();
-		setLocale(/** @type {import('$lib/paraglide/runtime.js').Locale} */ (locale));
+		setLocale(locale as Locale);
 	}
 
-	/**
-	 * Hover-driven popover open keeps non-JS behaviour (click only) intact.
-	 * PointerType guard prevents accidental triggering on touch devices.
-	 *
-	 * @param {PointerEvent} event
-	 */
-	const handleHoverOpen = (event) => {
-		sidebarElement.showPopover();
+	const handleHoverOpen = () => {
+		sidebarElement?.showPopover();
 	};
 
-	/**
-	 * @param {PointerEvent} event
-	 */
-	const handleHoverClose = (event) => {
-		sidebarElement.hidePopover();
+	const handleHoverClose = () => {
+		sidebarElement?.hidePopover();
 	};
 </script>
 
 {#snippet sidebarItem(
-	/** @type {import('svelte').ComponentType | string | null | undefined} */ icon,
-	/** @type {string} */ label,
-	/** @type {string} */ href,
-	/** @type {boolean} */ isActive = false,
-	/** @type {(event: MouseEvent) => void} */ onClick = () => {}
+	icon: Component | string | null | undefined,
+	label: string,
+	href: string,
+	isActive: boolean = false,
+	onClick: (event: MouseEvent) => void = () => {}
 )}
 	<a
 		href={href}
