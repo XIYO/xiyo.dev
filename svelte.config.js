@@ -11,7 +11,7 @@ export default {
 			// routes are handled by the worker; static in /static is served by the worker
 		}),
 		prerender: {
-			crawl: false, // 자동 크롤링 비활성화 - entries 함수로 명시적 제어
+			crawl: true,
 			handleMissingId: 'warn',
 			handleHttpError: ({ status, path, referrer }) => {
 				// 404는 정상 동작 (존재하지 않는 페이지)
@@ -28,6 +28,7 @@ export default {
 				'/glove',
 				'/games',
 				'/games/tic-tac-toe',
+				'/games/ladder',
 				'/nav'
 			] // entries 함수가 있는 라우트에서 동적으로 생성
 		}

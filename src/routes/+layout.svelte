@@ -311,4 +311,11 @@
 	{/if}
 </svelte:head>
 
+<!-- Invisible anchor tags for SvelteKit prerender crawling -->
+<nav aria-hidden="true" style="display:none">
+	{#each locales as locale (locale)}
+		<a href={hrefForLocale(locale)} data-sveltekit-preload-data="tap">{locale}</a>
+	{/each}
+</nav>
+
 {@render children()}

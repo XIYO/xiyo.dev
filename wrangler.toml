@@ -1,4 +1,4 @@
-name = "xiyo-blog"
+name = "xiyo-dev"
 main = ".svelte-kit/cloudflare/_worker.js"
 
 # 최신 날짜로 갱신
