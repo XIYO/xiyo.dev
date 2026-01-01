@@ -1,3 +1,15 @@
+# [3.2.0](https://github.com/XIYO/xiyo.dev/compare/v3.1.0...v3.2.0) (2026-01-01)
+
+
+### Bug Fixes
+
+* enable i18n prerendering for en-us and ja-jp routes ([50b7526](https://github.com/XIYO/xiyo.dev/commit/50b7526c5f39fa9f3a5b5eba049719f25cf5ca8e))
+
+
+### Features
+
+* add Tic-Tac-Toe game and update dependencies ([f4826eb](https://github.com/XIYO/xiyo.dev/commit/f4826eb289813177903f8983fc5d0599c87c86a9))
+
 # [3.1.0](https://github.com/XIYO/xiyo.github.io/compare/v3.0.0...v3.1.0) (2025-10-20)
 
 
