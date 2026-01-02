@@ -5,8 +5,8 @@ export const prerender = true;
 export function load() {
 	return {
 		meta: {
-			title: m.gamesTitle(),
-			description: m.gamesDescription()
+			title: m.gameLadderTitle(),
+			description: m.gameLadderDescription()
 		}
 	};
 }

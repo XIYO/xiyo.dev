@@ -21,5 +21,15 @@
 	"extractorImgAlt": "Extractor preview image",
 	"extractorDescription": "Video subtitle extraction service. Extract subtitles from YouTube and other video platforms.",
 	"zheonImgAlt": "Zheon preview image",
-	"zheonDescription": "YouTube video AI summarization service. Quickly grasp key content of long videos."
+	"zheonDescription": "YouTube video AI summarization service. Quickly grasp key content of long videos.",
+	"gamesTitle": "Games",
+	"gamesDescription": "Simple browser games",
+	"gameLadderTitle": "Ladder",
+	"gameLadderDescription": "Korean ladder climbing game",
+	"gameTicTacToeTitle": "Tic-Tac-Toe",
+	"gameTicTacToeDescription": "Classic 3x3 grid game",
+	"ladderPlayers": "Players",
+	"ladderExcludeSelf": "Exclude Self",
+	"ladderNew": "New",
+	"ladderAllStart": "All Start"
 }

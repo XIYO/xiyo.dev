@@ -21,5 +21,15 @@
 	"extractorImgAlt": "Extractorプレビュー画像",
 	"extractorDescription": "動画字幕抽出サービス。YouTubeなどの動画から字幕を抽出できます。",
 	"zheonImgAlt": "Zheonプレビュー画像",
-	"zheonDescription": "YouTube動画をAIで要約するサービス。長い動画の要点を素早く把握できます。"
+	"zheonDescription": "YouTube動画をAIで要約するサービス。長い動画の要点を素早く把握できます。",
+	"gamesTitle": "ゲーム",
+	"gamesDescription": "シンプルなブラウザゲーム",
+	"gameLadderTitle": "あみだくじ",
+	"gameLadderDescription": "韓国の伝統的なはしごゲーム",
+	"gameTicTacToeTitle": "三目並べ",
+	"gameTicTacToeDescription": "クラシックな3x3グリッドゲーム",
+	"ladderPlayers": "人数",
+	"ladderExcludeSelf": "自分を除外",
+	"ladderNew": "新規作成",
+	"ladderAllStart": "全員スタート"
 }

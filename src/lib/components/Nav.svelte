@@ -1,7 +1,7 @@
 <script>
 	import { page } from '$app/state';
 	import { deLocalizeHref } from '$lib/paraglide/runtime.js';
-	import { locales, localizeHref, setLocale } from '$lib/paraglide/runtime.js';
+	import { locales, localizeHref } from '$lib/paraglide/runtime.js';
 
 	const { ...rest } = $props();
 
@@ -11,15 +11,6 @@
 		about: '/about',
 		glove: '/glove'
 	};
-
-	/**
-	 * @param {Event} event
-	 * @param {string} locale
-	 */
-	async function handleLocaleClick(event, locale) {
-		event.preventDefault();
-		setLocale(/** @type {import('$lib/paraglide/runtime.js').Locale} */ (locale));
-	}
 </script>
 
 <!-- 언어별 국기 SVG 컴포넌트 선언 -->
@@ -47,20 +38,16 @@
 
 	<ul class="grid">
 		{#each locales as locale (locale)}
-			{#snippet localeItem(
-				/** @type {string} */ locale
-			)}
-				<li class="text-right flex items-center gap-2 justify-end">
-					{@html locale === 'ko-kr' ? FlagKo() : locale === 'ja-jp' ? FlagJa() : FlagEn()}
-					<a
-						class="block p-2"
-						href={localizeHref(page.url.pathname, { locale })}
-						onclick={(e) => handleLocaleClick(e, locale)}
-					>
-						{locale}
-					</a>
-				</li>
-			{/snippet}
+			<li class="text-right flex items-center gap-2 justify-end">
+				{@html locale === 'ko-kr' ? FlagKo() : locale === 'ja-jp' ? FlagJa() : FlagEn()}
+				<a
+					class="block p-2"
+					href={localizeHref(page.url.pathname, { locale })}
+					data-sveltekit-reload
+				>
+					{locale}
+				</a>
+			</li>
 		{/each}
 	</ul>
 </nav>

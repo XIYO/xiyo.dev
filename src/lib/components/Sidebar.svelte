@@ -8,7 +8,7 @@
 	import { afterNavigate } from '$app/navigation';
 	import { innerWidth } from 'svelte/reactivity/window';
 	import { deLocalizeHref } from '$lib/paraglide/runtime.js';
-	import { localizeHref, locales, setLocale, type Locale } from '$lib/paraglide/runtime.js';
+	import { localizeHref, locales } from '$lib/paraglide/runtime.js';
 	import type { Component } from 'svelte';
 
 	let sidebarElement = $state<HTMLElement | null>(null);
@@ -36,10 +36,6 @@
 		'ja-jp': '🇯🇵'
 	};
 
-	async function handleLocaleClick(event: Event, locale: string) {
-		event.preventDefault();
-		setLocale(locale as Locale);
-	}
 
 	const handleHoverOpen = () => {
 		sidebarElement?.showPopover();
@@ -55,14 +51,14 @@
 	label: string,
 	href: string,
 	isActive: boolean = false,
-	onClick: (event: MouseEvent) => void = () => {}
+	reload: boolean = false
 )}
 	<a
 		href={href}
 		class={`flex h-12 w-full text-sm uppercase tracking-widest transition ${isActive ? 'preset-filled-surface-200-800 font-bold' : 'hover:preset-filled-surface-400-600'}`}
 		aria-label={label}
 		title={label}
-		onclick={onClick}
+		data-sveltekit-reload={reload ? '' : undefined}
 	>
 		<div class="w-12 grid place-items-center-safe">
 			{#if typeof icon === 'string'}
@@ -126,7 +122,7 @@
                     locale,
                     localizeHref(page.url.pathname, { locale }),
                     false,
-                    (event) => handleLocaleClick(event, locale)
+                    true
                 )}
             {/each}
         </footer>
