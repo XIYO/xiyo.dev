@@ -1,3 +1,10 @@
+# [3.3.0](https://github.com/XIYO/xiyo.dev/compare/v3.2.0...v3.3.0) (2026-01-02)
+
+
+### Features
+
+* add Ladder game ([cf072f2](https://github.com/XIYO/xiyo.dev/commit/cf072f26c6d5fecc4a5c089d852741d4253316a4))
+
 # [3.2.0](https://github.com/XIYO/xiyo.dev/compare/v3.1.0...v3.2.0) (2026-01-01)
 
 
